@@ -1,0 +1,22 @@
+{
+  "name": "starkey-gms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "G & J Starkey local Starter and Lite workshop preview",
+  "type": "module",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.mjs",
+    "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.mjs",
+    "check": "node --check server.mjs && node --check lib/storage.mjs && node --check lib/auth.mjs && node --check public/app.js",
+    "db:migrate": "node scripts/migrate.mjs",
+    "staff:create": "node scripts/create-staff.mjs"
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "dependencies": {
+    "better-auth": "1.7.14",
+    "pg": "8.23.1"
+  }
+}
+

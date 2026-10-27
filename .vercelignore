@@ -1,0 +1,10 @@
+data
+node_modules
+.git
+.env*
+docs
+tests
+test-results
+GMS-PLANNING-PACKAGE.html
+*.log
+

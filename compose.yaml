@@ -1,0 +1,11 @@
+services:
+  gms:
+    build: .
+    ports:
+      - "127.0.0.1:3080:3000"
+    volumes:
+      - starkey-data:/app/data
+    restart: unless-stopped
+volumes:
+  starkey-data:
+
