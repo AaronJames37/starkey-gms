@@ -19,7 +19,7 @@ function workshopDashboard() {
     { id: 'working', title: 'In the workshop', subtitle: 'Work underway', glyph: 'wrench', jobs: jobs.filter(j => j.status === 'in-progress') },
     { id: 'collection', title: 'Ready & invoiced', subtitle: 'Finishing up', glyph: 'check', jobs: jobs.filter(j => ['ready', 'invoiced'].includes(j.status)) }
   ];
-  const pageSize = window.innerHeight < 720 ? 1 : 2;
+  const pageSize = window.innerHeight < 860 ? 1 : 2;
   const pages = Math.max(1, ...stages.map(s => Math.ceil(s.jobs.length / pageSize)));
   dashboardPage = Math.min(dashboardPage, pages - 1);
   const assigned = jobs.filter(j => state.settings.technicians.includes(j.technician)).length;

@@ -175,7 +175,7 @@ function checkSlot(s, job) {
   if (s.jobs.some(j => j.id !== job.id && j.date === job.date && j.technician === job.technician && !['estimate', 'cancelled', 'completed', 'invoiced'].includes(j.status) && start < minutes(j.time) + j.duration && end > minutes(j.time))) fail('This technician already has work in that time slot.', 409);
 }
 
-const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
 function reply(res, status, body) { res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); }
 export async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'same-origin');
@@ -205,7 +205,7 @@ export async function handler(req, res) {
     if (url.pathname.startsWith('/api/')) return reply(res, 404, { error: 'Not found.' });
     if (req.method !== 'GET' && req.method !== 'HEAD') return reply(res, 405, { error: 'Method not allowed.' });
     const file = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
-    if (!['index.html', 'app.js', 'dashboard.js', 'styles.css', 'favicon.svg'].includes(file)) return reply(res, 404, { error: 'Not found.' });
+    if (!['index.html', 'app.js', 'dashboard.js', 'styles.css', 'favicon.svg', 'logo-small.webp'].includes(file)) return reply(res, 404, { error: 'Not found.' });
     const path = join(root, 'public', file); if (!existsSync(path)) return reply(res, 404, { error: 'Not found.' });
     res.writeHead(200, { 'Content-Type': mime[extname(path)], 'Cache-Control': 'no-cache' }); res.end(req.method === 'HEAD' ? undefined : readFileSync(path));
   } catch (e) { if (!e.status) console.error(e); reply(res, e.status || 500, { error: e.status ? e.message : 'Something went wrong. Please try again.' }); }
