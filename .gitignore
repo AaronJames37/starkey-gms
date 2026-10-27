@@ -1,0 +1,9 @@
+data/
+node_modules/
+test-results/
+*.log
+.env
+.env.*
+!.env.example
+.vercel/
+backups/
