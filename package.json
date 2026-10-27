@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node --disable-warning=ExperimentalWarning server.mjs",
     "test": "node --disable-warning=ExperimentalWarning --test tests/*.test.mjs",
-    "check": "node --check server.mjs && node --check lib/storage.mjs && node --check lib/auth.mjs && node --check public/app.js",
+    "check": "node --check server.mjs && node --check lib/storage.mjs && node --check lib/auth.mjs && node --check public/app.js && node --check public/dashboard.js",
     "db:migrate": "node scripts/migrate.mjs",
     "staff:create": "node scripts/create-staff.mjs"
   },
