@@ -4,6 +4,7 @@ import { join, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import * as storage from './lib/storage.mjs';
+import { expandDemoBoard } from './lib/demo-board.mjs';
 import { authStatus, authHandler, requireStaff } from './lib/auth.mjs';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
@@ -12,7 +13,10 @@ const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London'
 const dateOffset = (date, days) => { const d = new Date(`${date}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + days); return d.toISOString().slice(0, 10); };
 async function readState() {
   if (storage.designPreview) return { ...seed(), today: today() };
-  const s = await storage.read(seed);
+  let s = await storage.read(seed);
+  if (s.settings.demo && s.settings.demoBoardVersion !== 1) {
+    s = (await storage.transaction(seed, state => expandDemoBoard(state, today()))).state;
+  }
   s.today = today();
   return s;
 }
@@ -76,6 +80,7 @@ function seed() {
   ];
   samples.forEach((j, i) => s.jobs.push({ id: `job_${i + 1}`, number: 1042 + i, customerId: j[0], vehicleId: j[1], title: j[2], status: j[3], technician: j[4], time: j[5], duration: j[6], date: d, lines: j[7], notes: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), revision: 1 }));
   s.reminders = [{ id: 'rem_1', customerId: 'cus_2', vehicleId: 'veh_2', type: 'MOT', due: dateOffset(d, 8), status: 'pending', channel: 'SMS' }, { id: 'rem_2', customerId: 'cus_5', vehicleId: 'veh_5', type: 'MOT', due: dateOffset(d, 18), status: 'pending', channel: 'Email' }, { id: 'rem_3', customerId: 'cus_1', vehicleId: 'veh_1', type: 'Service', due: dateOffset(d, 25), status: 'pending', channel: 'Email' }];
+  expandDemoBoard(s, d);
   event(s, 'Your sample workshop is ready to explore.');
   if (process.env.SEED_DEMO === 'false') {
     for (const name of ['customers', 'vehicles', 'jobs', 'products', 'reminders', 'invoices', 'activity']) s[name] = [];
