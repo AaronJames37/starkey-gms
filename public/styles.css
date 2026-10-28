@@ -165,4 +165,68 @@ body{font-size:15px}
 @media(max-width:1000px){.current-user-name{display:none}}
 @media(max-width:900px){.workshop-dashboard .dash-workspace{display:flex}.workshop-dashboard .tech-current{margin-top:20px}.workshop-dashboard .tech-person>div>span{font-size:12px}.workshop-dashboard .tech-job-name{font-size:14px}}
 @media(max-width:600px){.workshop-dashboard .dash-stats{gap:8px}.workshop-dashboard .dash-stat{min-height:61px;padding:9px 10px}.workshop-dashboard .dash-stat-copy>span{font-size:11px}.workshop-dashboard .dash-stat-copy>small{font-size:10px}.workshop-dashboard .dash-stat-copy>strong{font-size:27px}.workshop-dashboard .dash-heading .eyebrow{font-size:9px}.workshop-dashboard .dash-heading h1{font-size:24px}.workshop-dashboard .dash-panel-heading{height:48px}.workshop-dashboard .dash-panel-heading h2{font-size:15px}.workshop-dashboard .dash-panel-heading>div>span{font-size:11px}.workshop-dashboard .tech-current{margin:0}.workshop-dashboard .tech-person strong{font-size:15px}.workshop-dashboard .tech-person>div>span{font-size:11px}.workshop-dashboard .tech-job-name{font-size:12px}.job-ticket-top{font-size:11px}.ticket-title{font-size:14px}.ticket-customer{font-size:12px}.ticket-vehicle{font-size:11px}.ticket-assignment small{font-size:9px}.ticket-assignment b{font-size:12px}.dashboard-job{padding:11px;max-height:none}.uk-plate{height:32px}.plate-letters{font-size:22px}.uk-plate-small{height:24px}.uk-plate-small .plate-letters{font-size:16px}.workshop-dashboard .board-footer{font-size:10px}.workshop-dashboard .team-diary-link{font-size:12px}}
+/* Flat workshop board: continuous surfaces, with cards only for individual jobs. */
+.dashboard-screen .workspace{background:#fff}
+.dashboard-screen .content{background:#fff;padding:0 24px 8px}
+.dashboard-screen .workshop-dashboard{gap:0}
+.workshop-dashboard .dash-heading{padding:22px 0 19px}
+.workshop-dashboard .dash-heading .eyebrow{display:none}
+.workshop-dashboard .dash-heading h1{font-size:27px;letter-spacing:-.7px;color:#24282a}
+.workshop-dashboard .heading-stop{color:#78aa00}
+.workshop-dashboard .dash-stats{gap:0;padding:0 0 18px;background:#fff}
+.workshop-dashboard .dash-stat{border:0;border-radius:0;box-shadow:none;background:transparent;padding:7px 17px;min-height:66px;color:#24282a}
+.workshop-dashboard .dash-stat:first-child{padding-left:0}
+.workshop-dashboard .dash-stat+.dash-stat{border-left:1px solid #e6e7e8}
+.workshop-dashboard .dash-stat:hover{background:#f5f6f5}
+.workshop-dashboard .dash-stat-icon{display:none}
+.workshop-dashboard .dash-stat-copy{grid-template-columns:1fr;gap:4px}
+.workshop-dashboard .dash-stat-copy>span{font-size:13px;font-weight:600;color:#42484b}
+.workshop-dashboard .dash-stat-copy>strong{grid-column:1;grid-row:2;font-size:28px;letter-spacing:-.5px;color:#252a2d}
+.workshop-dashboard .dash-stat-copy>small{grid-row:3;font-size:11px;color:#60686c}
+.workshop-dashboard .dash-workspace{gap:18px;grid-template-columns:minmax(0,1fr) 264px}
+.workshop-dashboard .job-board,.workshop-dashboard .technician-board{border:0;border-radius:0;box-shadow:none;background:#eceeef}
+.workshop-dashboard .dash-panel-heading{background:#fff;border:0;padding:0 0 15px;height:57px;align-items:center}
+.workshop-dashboard .dash-panel-heading h2{color:#292e31;font-size:16px}
+.workshop-dashboard .dash-panel-heading>div>span{color:#626b70;font-size:12px}
+.workshop-dashboard .dash-pager{color:#535d63}
+.workshop-dashboard .dash-pager .icon-btn{border:0;border-radius:3px;background:#f0f1f2;color:#3d464c}
+.workshop-dashboard .job-lanes{padding:0;gap:8px;background:#fff}
+.workshop-dashboard .job-lane{background:#eceeef;padding:0 8px 8px}
+.workshop-dashboard .lane-heading{height:56px;gap:5px;padding:0 3px}
+.workshop-dashboard .lane-heading h3{font-size:13px;color:#30383c;font-weight:600}
+.workshop-dashboard .lane-dot{display:none}
+.workshop-dashboard .lane-count{background:transparent;color:#646d72;border-radius:0;padding:0;font-size:13px;font-weight:500}
+.workshop-dashboard .lane-jobs{gap:9px}
+.workshop-dashboard .dashboard-job{background:#fff;border:0;border-radius:3px;box-shadow:0 1px 3px #1c252218;padding:14px;max-height:275px}
+.workshop-dashboard .dashboard-job:hover{background:#fbfdf7;box-shadow:0 1px 5px #1c25222b}
+.workshop-dashboard .job-ticket-top,.workshop-dashboard .job-ticket-top>span{color:#596268;font-size:11px}
+.workshop-dashboard .ticket-vehicle{color:#606a70}
+.workshop-dashboard .ticket-title{color:#272d30;font-size:15px;margin-top:10px}
+.workshop-dashboard .ticket-customer{color:#626c72}
+.workshop-dashboard .ticket-assignment{border-top:0;padding-top:8px;margin-top:10px}
+.workshop-dashboard .ticket-assignment small{color:#6b7478;font-size:9px}
+.workshop-dashboard .ticket-assignment b{color:#3b4743}
+.workshop-dashboard .ticket-avatar{background:#eef1ec;color:#506147;border-radius:50%;width:29px;height:29px}
+.workshop-dashboard .ticket-open{background:transparent;color:#5c7d40}
+.workshop-dashboard .lane-empty{border:0;background:transparent;color:#6b747a;font-size:12px;box-shadow:none}
+.workshop-dashboard .board-footer{border:0;background:#fff;padding:0;height:37px;color:#626c72;font-size:11px}
+.workshop-dashboard .technician-roster{background:#e4e7e8;padding:0 14px}
+.workshop-dashboard .technician-assignment{background:transparent;border:0;border-radius:0;border-bottom:1px solid #d0d5d7;padding:15px 0;box-shadow:none}
+.workshop-dashboard .technician-assignment:last-child{border-bottom:0}
+.workshop-dashboard .technician-assignment:hover{background:#dce1e2}
+.workshop-dashboard .tech-person strong{color:#30383c;font-size:16px}
+.workshop-dashboard .tech-person>div>span{color:#58656b;font-size:12px}
+.workshop-dashboard .tech-avatar{border-radius:50%;background:#f6f8f4;color:#506446}
+.workshop-dashboard .tech-1{background:#f0f4f8;color:#526c82}
+.workshop-dashboard .tech-2{background:#f8f4ec;color:#897449}
+.workshop-dashboard .tech-caption{color:#657279;font-size:9px;letter-spacing:.5px}
+.workshop-dashboard .tech-job-name{color:#44535b;font-size:12px}
+.workshop-dashboard .tech-unassigned{color:#657279;font-size:12px}
+.workshop-dashboard .team-diary-link{border:0;border-radius:0;background:#fff;padding:0;height:37px;color:#496837}
+@media(min-width:1500px){.workshop-dashboard .dash-workspace{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:1200px){.workshop-dashboard .dash-workspace{grid-template-columns:minmax(0,1fr) 240px;gap:14px}.workshop-dashboard .dashboard-job{padding:11px}.workshop-dashboard .lane-heading h3{font-size:12px}.workshop-dashboard .dash-stat{padding-left:12px;padding-right:12px}}
+@media(max-height:800px) and (min-width:901px){.dashboard-screen .content{padding-top:0}.workshop-dashboard .dash-heading{padding-top:17px;padding-bottom:14px}.workshop-dashboard .dash-stats{padding-bottom:12px}.workshop-dashboard .dash-panel-heading{height:52px}.workshop-dashboard .lane-heading{height:48px}}
+@media(max-width:900px){.dashboard-screen .content{padding-left:18px;padding-right:18px}.workshop-dashboard .dash-workspace{display:flex}.workshop-dashboard .dash-mobile-switch{border-radius:0;background:#eceeef;margin-bottom:12px}.workshop-dashboard .dash-mobile-switch button{border-radius:0}.workshop-dashboard .technician-roster{padding:0 14px;gap:14px}.workshop-dashboard .technician-assignment{border:0}.workshop-dashboard .dash-heading h1{font-size:25px}}
+@media(max-width:600px){.dashboard-screen .content{padding-left:12px;padding-right:12px}.workshop-dashboard .dash-heading{padding:16px 0}.workshop-dashboard .dash-heading h1{font-size:23px}.workshop-dashboard .dash-stat{padding:6px 10px;min-height:65px}.workshop-dashboard .dash-stat:first-child{padding-left:10px}.workshop-dashboard .dash-stat:nth-child(3){border-left:0}.workshop-dashboard .dash-stat-copy>span{font-size:11px}.workshop-dashboard .dash-stat-copy>strong{font-size:25px}.workshop-dashboard .dash-stat-copy>small{font-size:10px}.workshop-dashboard .dash-stats{padding-bottom:12px;gap:8px 0}.workshop-dashboard .dash-stage-switch{border:0;background:#eceeef}.workshop-dashboard .dash-stage-switch button{background:transparent;border-radius:0;font-size:11px}.workshop-dashboard .dash-stage-switch button.selected{background:#e0e5df;border-bottom-color:#7ba930}.workshop-dashboard .job-lanes{padding:8px;background:#eceeef}.workshop-dashboard .job-lane{padding:0}.workshop-dashboard .lane-heading{display:none}.workshop-dashboard .lane-jobs{display:flex}.workshop-dashboard .dashboard-job{max-height:none;padding:14px}.workshop-dashboard .technician-roster{gap:0}.workshop-dashboard .technician-assignment{border-bottom:1px solid #d0d5d7;padding:12px 0}.workshop-dashboard .board-footer{font-size:10px}.workshop-dashboard .dash-panel-heading{height:50px}}
+@media(max-height:650px) and (min-width:901px){.workshop-dashboard .dash-heading{padding:10px 0}.workshop-dashboard .dash-stats{padding-bottom:8px}.workshop-dashboard .dash-stat{min-height:49px}.workshop-dashboard .dash-stat-copy>small{display:none}.workshop-dashboard .dash-stat-copy>strong{font-size:25px}.workshop-dashboard .dash-panel-heading{height:44px}.workshop-dashboard .lane-heading{height:40px}.workshop-dashboard .dashboard-job{padding:10px}.workshop-dashboard .ticket-title{margin-top:7px}.workshop-dashboard .ticket-assignment{margin-top:7px}}
 
