@@ -9,7 +9,9 @@ function ukPlate(registration, small = false) {
 }
 
 function dashboardJobs() {
-  return state.jobs.filter(j => j.date === state.today && !['estimate', 'cancelled', 'completed'].includes(j.status)).sort((a, b) => a.time.localeCompare(b.time));
+  // Work stays on the board across midnight until it is finished.
+  return state.jobs.filter(j => ['in-progress', 'ready'].includes(j.status) || j.status === 'booked' && j.date <= state.today || j.status === 'invoiced' && j.date === state.today)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 }
 
 function workshopDashboard() {
@@ -27,23 +29,23 @@ function workshopDashboard() {
   return `<div class="workshop-dashboard" data-view="${dashboardView}" data-stage="${dashboardStage}">
     <header class="dash-heading"><div><div class="eyebrow">THE WORKSHOP, AT A GLANCE</div><h1>Today's workshop<span class="heading-stop">.</span></h1></div><div class="dash-heading-actions"><span class="dash-date">${icon('calendar')}${date}</span>${btn('new-job', 'Book a job', 'plus', true)}</div></header>
     <section class="dash-stats" aria-label="Today's workshop totals">
-      ${dashStat('Jobs booked', jobs.length, 'On today’s diary', 'calendar', 'booked')}
+      ${dashStat('Jobs booked', stages[0].jobs.length, 'Today & carried forward', 'calendar', 'booked')}
       ${dashStat('In the workshop', stages[1].jobs.length, 'Jobs being worked on', 'wrench', 'working')}
       ${dashStat('Ready & invoiced', stages[2].jobs.length, 'Finished or awaiting payment', 'car', 'collection')}
       ${dashStat('Technicians assigned', new Set(jobs.map(j => j.technician).filter(t => state.settings.technicians.includes(t))).size, `${assigned} of ${jobs.length} jobs assigned`, 'users', 'technicians')}
     </section>
     <div class="dash-mobile-switch" aria-label="Dashboard view"><button class="${dashboardView === 'jobs' ? 'selected' : ''}" data-dash-view="jobs">${icon('jobs')}Job board</button><button class="${dashboardView === 'technicians' ? 'selected' : ''}" data-dash-view="technicians">${icon('users')}Technicians</button></div>
     <div class="dash-workspace">
-      <section class="job-board" aria-labelledby="job-board-heading"><header class="dash-panel-heading"><div><h2 id="job-board-heading">Job board</h2><span>${jobs.length} vehicles · ${fmtDate(state.today)}</span></div><div class="dash-pager"><button class="icon-btn" data-dash-page="-1" aria-label="Previous jobs" ${dashboardPage === 0 ? 'disabled' : ''}>‹</button><span aria-live="polite">${dashboardPage + 1} / ${pages}</span><button class="icon-btn" data-dash-page="1" aria-label="Next jobs" ${dashboardPage + 1 >= pages ? 'disabled' : ''}>›</button></div></header>
+      <section class="job-board" aria-labelledby="job-board-heading"><header class="dash-panel-heading"><div><h2 id="job-board-heading">Job board</h2><span>${jobs.length} vehicles · Today & carried forward</span></div><div class="dash-pager"><button class="icon-btn" data-dash-page="-1" aria-label="Previous jobs" ${dashboardPage === 0 ? 'disabled' : ''}>‹</button><span aria-live="polite">${dashboardPage + 1} / ${pages}</span><button class="icon-btn" data-dash-page="1" aria-label="Next jobs" ${dashboardPage + 1 >= pages ? 'disabled' : ''}>›</button></div></header>
         <div class="dash-stage-switch" aria-label="Job stage">${stages.map(s => `<button data-dash-stage="${s.id}" class="${dashboardStage === s.id ? 'selected' : ''}">${s.title}<b>${s.jobs.length}</b></button>`).join('')}</div>
-        <div class="job-lanes">${stages.map(s => `<section class="job-lane lane-${s.id}" data-stage="${s.id}" aria-label="${s.title}"><header class="lane-heading"><div><span class="lane-dot"></span><h3>${s.title}</h3></div><span class="lane-count">${s.jobs.length}</span></header><div class="lane-jobs">${s.jobs.slice(dashboardPage * pageSize, (dashboardPage + 1) * pageSize).map(dashboardJobCard).join('') || `<div class="lane-empty">${icon(s.glyph)}<span>${s.jobs.length ? 'No more jobs on this page' : 'No jobs in this stage'}</span></div>`}</div></section>`).join('')}</div>
-        <footer class="board-footer"><span>${state.settings.demo ? 'Sample workshop records' : 'Today’s scheduled jobs'}</span><a href="#jobs">All jobs & estimates ${icon('arrow')}</a></footer>
+        <div class="job-lanes">${stages.map(s => `<section class="job-lane lane-${s.id}" data-stage="${s.id}" aria-label="${s.title}"><header class="lane-heading"><div><span class="lane-dot"></span><h3>${s.title}</h3></div><span class="lane-count">${s.jobs.length}</span></header><div class="lane-jobs">${s.jobs.slice(Math.min(dashboardPage, Math.max(0, Math.ceil(s.jobs.length / pageSize) - 1)) * pageSize, (Math.min(dashboardPage, Math.max(0, Math.ceil(s.jobs.length / pageSize) - 1)) + 1) * pageSize).map(dashboardJobCard).join('') || `<div class="lane-empty">${icon(s.glyph)}<span>${s.jobs.length ? 'No more jobs on this page' : 'No jobs in this stage'}</span></div>`}</div></section>`).join('')}</div>
+        <footer class="board-footer"><span>${state.settings.demo ? 'Sample workshop records' : 'Today’s jobs & unfinished work'}</span><a href="#jobs">All jobs & estimates ${icon('arrow')}</a></footer>
       </section>
       <section class="technician-board" aria-labelledby="technician-heading"><header class="dash-panel-heading"><div><h2 id="technician-heading">On the tools</h2><span>Who's working on what</span></div>${icon('users')}</header><div class="technician-roster">${state.settings.technicians.map((name, index) => {
         const assignedJobs = jobs.filter(j => j.technician === name);
         const current = assignedJobs.find(j => j.status === 'in-progress') || assignedJobs.find(j => j.status === 'booked') || assignedJobs[0];
         const hours = assignedJobs.reduce((n, j) => n + j.duration, 0) / 60;
-        return `<button class="technician-assignment" data-dash-tech="${esc(name)}" aria-label="View ${esc(name)}'s ${assignedJobs.length} assigned jobs"><div class="tech-person"><span class="tech-avatar tech-${index % 3}">${esc(initials(name))}</span><div><strong>${esc(name)}</strong><span>${assignedJobs.length} ${assignedJobs.length === 1 ? 'job' : 'jobs'} assigned · ${hours.toFixed(1)} hrs</span></div><span class="tech-indicator ${current?.status === 'in-progress' ? 'is-working' : ''}"></span></div>${current ? `<div class="tech-current"><span class="tech-caption">${current.status === 'in-progress' ? 'WORKING ON' : current.status === 'booked' ? 'NEXT BOOKING' : 'FINISHING UP'}</span><div>${ukPlate(vehicle(current.vehicleId).registration, true)}<span class="tech-job-name">${esc(current.title)}</span></div></div>` : '<div class="tech-unassigned">No jobs assigned today</div>'}</button>`;
+        return `<button class="technician-assignment" data-dash-tech="${esc(name)}" aria-label="View ${esc(name)}'s ${assignedJobs.length} assigned jobs"><div class="tech-person"><span class="tech-avatar tech-${index % 3}">${esc(initials(name))}</span><div><strong>${esc(name)}</strong><span>${assignedJobs.length} ${assignedJobs.length === 1 ? 'job' : 'jobs'} assigned · ${hours.toFixed(1)} hrs</span></div><span class="tech-indicator ${current?.status === 'in-progress' ? 'is-working' : ''}"></span></div>${current ? `<div class="tech-current"><span class="tech-caption">${current.status === 'in-progress' ? 'WORKING ON' : current.status === 'booked' ? 'NEXT BOOKING' : 'FINISHING UP'}</span><div>${ukPlate(vehicle(current.vehicleId).registration, true)}<span class="tech-job-name">${esc(current.title)}</span></div></div>` : '<div class="tech-unassigned">No active jobs assigned</div>'}</button>`;
       }).join('')}</div><a class="team-diary-link" href="#diary">Open technician diary ${icon('arrow')}</a></section>
     </div>
   </div>`;
@@ -67,9 +69,9 @@ document.addEventListener('click', event => {
   if (target.dataset.dashStat) {
     if (window.innerWidth > 900) {
       const key = target.dataset.dashStat;
-      const jobs = dashboardJobs().filter(j => key === 'booked' || key === 'technicians' || key === 'working' && j.status === 'in-progress' || key === 'collection' && ['ready', 'invoiced'].includes(j.status));
-      const title = { booked: "Today's booked jobs", working: 'Jobs in the workshop', collection: 'Ready & invoiced jobs', technicians: 'Technician assignments' }[key];
-      modal(title, 'TODAY’S WORKSHOP', `<div class="tech-job-detail">${jobs.map(dashboardJobCard).join('') || '<div class="empty">No jobs in this group.</div>'}</div>`);
+      const jobs = dashboardJobs().filter(j => key === 'booked' && j.status === 'booked' || key === 'technicians' || key === 'working' && j.status === 'in-progress' || key === 'collection' && ['ready', 'invoiced'].includes(j.status));
+      const title = { booked: "Booked jobs", working: 'Jobs in the workshop', collection: 'Ready & invoiced jobs', technicians: 'Technician assignments' }[key];
+      modal(title, 'WORKSHOP JOBS', `<div class="tech-job-detail">${jobs.map(dashboardJobCard).join('') || '<div class="empty">No jobs in this group.</div>'}</div>`);
       return;
     }
     if (target.dataset.dashStat === 'technicians') dashboardView = 'technicians';
@@ -78,7 +80,7 @@ document.addEventListener('click', event => {
   if (target.dataset.dashTech) {
     const name = target.dataset.dashTech;
     const jobs = dashboardJobs().filter(j => j.technician === name);
-    modal(`${name}'s assigned jobs`, 'TECHNICIAN WORKLOAD', `<div class="tech-job-detail">${jobs.map(dashboardJobCard).join('') || '<div class="empty">No jobs assigned today.</div>'}</div>`);
+    modal(`${name}'s assigned jobs`, 'TECHNICIAN WORKLOAD', `<div class="tech-job-detail">${jobs.map(dashboardJobCard).join('') || '<div class="empty">No active jobs assigned.</div>'}</div>`);
     return;
   }
   render();
