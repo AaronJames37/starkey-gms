@@ -25,3 +25,20 @@ test('dashboard keeps unfinished work visible after its booking date', () => {
   ]);
 });
 
+test('mechanic columns put work in progress first and keep the remaining jobs in booking order', () => {
+  const context = vm.createContext({
+    state: { today: '2026-10-28', jobs: [] },
+    document: { addEventListener() {} }, window: { addEventListener() {} }
+  });
+  vm.runInContext(readFileSync(new URL('../public/dashboard.js', import.meta.url), 'utf8'), context);
+  context.state.jobs = [
+    { id: 'later', technician: 'James', status: 'booked', date: '2026-10-28', time: '14:00' },
+    { id: 'early', technician: 'James', status: 'booked', date: '2026-10-28', time: '08:00' },
+    { id: 'current', technician: 'James', status: 'in-progress', date: '2026-10-28', time: '10:00' },
+    { id: 'other', technician: 'Sam', status: 'booked', date: '2026-10-28', time: '09:00' },
+    { id: 'unassigned', technician: '', status: 'booked', date: '2026-10-28', time: '09:00' }
+  ];
+  assert.deepEqual(Array.from(vm.runInContext("mechanicJobs('James').map(j => j.id)", context)), ['current', 'early', 'later']);
+  assert.deepEqual(Array.from(vm.runInContext("mechanicJobs('Unassigned').map(j => j.id)", context)), ['unassigned']);
+});
+

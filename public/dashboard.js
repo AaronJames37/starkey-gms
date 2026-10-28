@@ -1,6 +1,5 @@
-let dashboardPage = 0;
-let dashboardView = 'jobs';
-let dashboardStage = 'booked';
+let dashboardMechanic = '';
+const mechanicPages = {};
 
 function ukPlate(registration, small = false) {
   const raw = String(registration || '').toUpperCase().replace(/\s/g, '');
@@ -9,79 +8,54 @@ function ukPlate(registration, small = false) {
 }
 
 function dashboardJobs() {
-  // Work stays on the board across midnight until it is finished.
+  // Keep unfinished work visible when it carries over from an earlier day.
   return state.jobs.filter(j => ['in-progress', 'ready'].includes(j.status) || j.status === 'booked' && j.date <= state.today || j.status === 'invoiced' && j.date === state.today)
     .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 }
 
+function mechanicJobs(name, jobs = dashboardJobs()) {
+  return jobs.filter(j => (j.technician || 'Unassigned') === name)
+    .sort((a, b) => Number(b.status === 'in-progress') - Number(a.status === 'in-progress') || a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+}
+
 function workshopDashboard() {
   const jobs = dashboardJobs();
-  const stages = [
-    { id: 'booked', title: 'Booked in', subtitle: 'On the diary', glyph: 'calendar', jobs: jobs.filter(j => j.status === 'booked') },
-    { id: 'working', title: 'In the workshop', subtitle: 'Work underway', glyph: 'wrench', jobs: jobs.filter(j => j.status === 'in-progress') },
-    { id: 'collection', title: 'Ready & invoiced', subtitle: 'Finishing up', glyph: 'check', jobs: jobs.filter(j => ['ready', 'invoiced'].includes(j.status)) }
-  ];
-  const pageSize = window.innerHeight < 860 ? 1 : 2;
-  const pages = Math.max(1, ...stages.map(s => Math.ceil(s.jobs.length / pageSize)));
-  dashboardPage = Math.min(dashboardPage, pages - 1);
-  const assigned = jobs.filter(j => state.settings.technicians.includes(j.technician)).length;
-  const date = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/London' }).format(new Date());
-  return `<div class="workshop-dashboard" data-view="${dashboardView}" data-stage="${dashboardStage}">
-    <header class="dash-heading"><div><div class="eyebrow">THE WORKSHOP, AT A GLANCE</div><h1>Today's workshop<span class="heading-stop">.</span></h1></div><div class="dash-heading-actions"><span class="dash-date">${icon('calendar')}${date}</span>${btn('new-job', 'Book a job', 'plus', true)}</div></header>
-    <section class="dash-stats" aria-label="Today's workshop totals">
-      ${dashStat('Jobs booked', stages[0].jobs.length, 'Today & carried forward', 'calendar', 'booked')}
-      ${dashStat('In the workshop', stages[1].jobs.length, 'Jobs being worked on', 'wrench', 'working')}
-      ${dashStat('Ready & invoiced', stages[2].jobs.length, 'Finished or awaiting payment', 'car', 'collection')}
-      ${dashStat('Technicians assigned', new Set(jobs.map(j => j.technician).filter(t => state.settings.technicians.includes(t))).size, `${assigned} of ${jobs.length} jobs assigned`, 'users', 'technicians')}
-    </section>
-    <div class="dash-mobile-switch" aria-label="Dashboard view"><button class="${dashboardView === 'jobs' ? 'selected' : ''}" data-dash-view="jobs">${icon('jobs')}Job board</button><button class="${dashboardView === 'technicians' ? 'selected' : ''}" data-dash-view="technicians">${icon('users')}Technicians</button></div>
-    <div class="dash-workspace">
-      <section class="job-board" aria-labelledby="job-board-heading"><header class="dash-panel-heading"><div><h2 id="job-board-heading">Job board</h2><span>${jobs.length} vehicles · Today & carried forward</span></div><div class="dash-pager"><button class="icon-btn" data-dash-page="-1" aria-label="Previous jobs" ${dashboardPage === 0 ? 'disabled' : ''}>‹</button><span aria-live="polite">${dashboardPage + 1} / ${pages}</span><button class="icon-btn" data-dash-page="1" aria-label="Next jobs" ${dashboardPage + 1 >= pages ? 'disabled' : ''}>›</button></div></header>
-        <div class="dash-stage-switch" aria-label="Job stage">${stages.map(s => `<button data-dash-stage="${s.id}" class="${dashboardStage === s.id ? 'selected' : ''}">${s.title}<b>${s.jobs.length}</b></button>`).join('')}</div>
-        <div class="job-lanes">${stages.map(s => `<section class="job-lane lane-${s.id}" data-stage="${s.id}" aria-label="${s.title}"><header class="lane-heading"><div><span class="lane-dot"></span><h3>${s.title}</h3></div><span class="lane-count">${s.jobs.length}</span></header><div class="lane-jobs">${s.jobs.slice(Math.min(dashboardPage, Math.max(0, Math.ceil(s.jobs.length / pageSize) - 1)) * pageSize, (Math.min(dashboardPage, Math.max(0, Math.ceil(s.jobs.length / pageSize) - 1)) + 1) * pageSize).map(dashboardJobCard).join('') || `<div class="lane-empty">${icon(s.glyph)}<span>${s.jobs.length ? 'No more jobs on this page' : 'No jobs in this stage'}</span></div>`}</div></section>`).join('')}</div>
-        <footer class="board-footer"><span>${state.settings.demo ? 'Sample workshop records' : 'Today’s jobs & unfinished work'}</span><a href="#jobs">All jobs & estimates ${icon('arrow')}</a></footer>
-      </section>
-      <section class="technician-board" aria-labelledby="technician-heading"><header class="dash-panel-heading"><div><h2 id="technician-heading">On the tools</h2><span>Who's working on what</span></div>${icon('users')}</header><div class="technician-roster">${state.settings.technicians.map((name, index) => {
-        const assignedJobs = jobs.filter(j => j.technician === name);
-        const current = assignedJobs.find(j => j.status === 'in-progress') || assignedJobs.find(j => j.status === 'booked') || assignedJobs[0];
-        const hours = assignedJobs.reduce((n, j) => n + j.duration, 0) / 60;
-        return `<button class="technician-assignment" data-dash-tech="${esc(name)}" aria-label="View ${esc(name)}'s ${assignedJobs.length} assigned jobs"><div class="tech-person"><span class="tech-avatar tech-${index % 3}">${esc(initials(name))}</span><div><strong>${esc(name)}</strong><span>${assignedJobs.length} ${assignedJobs.length === 1 ? 'job' : 'jobs'} assigned · ${hours.toFixed(1)} hrs</span></div><span class="tech-indicator ${current?.status === 'in-progress' ? 'is-working' : ''}"></span></div>${current ? `<div class="tech-current"><span class="tech-caption">${current.status === 'in-progress' ? 'WORKING ON' : current.status === 'booked' ? 'NEXT BOOKING' : 'FINISHING UP'}</span><div>${ukPlate(vehicle(current.vehicleId).registration, true)}<span class="tech-job-name">${esc(current.title)}</span></div></div>` : '<div class="tech-unassigned">No active jobs assigned</div>'}</button>`;
-      }).join('')}</div><a class="team-diary-link" href="#diary">Open technician diary ${icon('arrow')}</a></section>
-    </div>
+  const names = [...new Set([...state.settings.technicians, ...jobs.map(j => j.technician || 'Unassigned')])];
+  if (!names.includes(dashboardMechanic)) dashboardMechanic = names[0] || '';
+  const capacity = Math.max(1, Math.floor((window.innerHeight - (window.innerWidth <= 600 ? 300 : 255)) / 122));
+  const date = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Europe/London' }).format(new Date(`${state.today}T12:00:00Z`));
+  return `<div class="workshop-dashboard mechanic-dashboard">
+    <header class="mechanic-heading"><h1>Today's workshop<span class="heading-stop">.</span></h1><div class="mechanic-actions">${btn('new-job', 'Book a job', 'plus', true)}<span class="dash-date">${icon('calendar')}${date}</span><span class="mechanic-total">${jobs.length} jobs · Today & carried forward</span></div></header>
+    <div class="mechanic-switch" aria-label="Choose mechanic">${names.map(name => `<button data-mechanic="${esc(name)}" class="${name === dashboardMechanic ? 'selected' : ''}" aria-pressed="${name === dashboardMechanic}">${esc(name)}<span>${mechanicJobs(name, jobs).length}</span></button>`).join('')}</div>
+    <div class="mechanic-columns" style="--mechanic-count:${Math.max(1, names.length)}">${names.map((name, index) => {
+      const assigned = mechanicJobs(name, jobs);
+      const current = assigned.find(j => j.status === 'in-progress');
+      const queue = assigned.filter(j => j !== current);
+      const queueSize = Math.max(1, capacity - Number(Boolean(current)));
+      const pages = Math.max(1, Math.ceil(queue.length / queueSize));
+      const page = Math.max(0, Math.min(mechanicPages[name] || 0, pages - 1));
+      mechanicPages[name] = page;
+      return `<section class="mechanic-column ${name === dashboardMechanic ? 'is-selected' : ''}" aria-label="${esc(name)}'s jobs"><header class="mechanic-column-heading"><span class="tech-avatar tech-${index % 3}">${esc(initials(name))}</span><div><h2>${esc(name)}</h2><span>${assigned.length} ${assigned.length === 1 ? 'job' : 'jobs'} · ${(assigned.reduce((n, j) => n + j.duration, 0) / 60).toFixed(1)} hrs booked</span></div>${current ? '<span class="mechanic-working"><i></i>Working</span>' : ''}</header><div class="mechanic-job-list">${current ? dashboardJobCard(current, true) : ''}${queue.slice(page * queueSize, (page + 1) * queueSize).map(j => dashboardJobCard(j)).join('')}${!assigned.length ? '<div class="lane-empty">No jobs booked</div>' : ''}</div><footer class="mechanic-column-footer">${pages > 1 ? `<button class="icon-btn" data-mechanic-page="${index}" data-step="-1" aria-label="Previous jobs for ${esc(name)}" ${page === 0 ? 'disabled' : ''}>‹</button><span aria-live="polite">${page + 1} / ${pages}</span><button class="icon-btn" data-mechanic-page="${index}" data-step="1" aria-label="Next jobs for ${esc(name)}" ${page + 1 >= pages ? 'disabled' : ''}>›</button>` : `<span>${current ? 'Current job first · Then by booking time' : 'Jobs in booking time order'}</span>`}</footer></section>`;
+    }).join('')}</div>
+    <footer class="board-footer"><span>${state.settings.demo ? 'Sample workshop records' : 'Today’s bookings & unfinished work'}</span><a href="#diary">Workshop diary ${icon('arrow')}</a><a href="#jobs">All jobs & estimates ${icon('arrow')}</a></footer>
   </div>`;
 }
 
-function dashStat(title, value, caption, glyph, stage) {
-  return `<button class="dash-stat stat-${stage}" data-dash-stat="${stage}"><div class="dash-stat-icon">${icon(glyph)}</div><div class="dash-stat-copy"><span>${title}</span><strong class="numeric">${value}</strong><small>${caption}</small></div>${icon('arrow')}</button>`;
-}
-
-function dashboardJobCard(job) {
-  const v = vehicle(job.vehicleId), c = customer(job.customerId);
-  return `<button class="dashboard-job" data-job="${job.id}" aria-label="Open job ${job.number}, ${esc(v.registration)}, ${esc(job.title)}, assigned to ${esc(job.technician)}"><div class="job-ticket-top"><span>#${job.number}</span><time>${esc(job.time)}<span> · ${job.duration} min</span></time></div>${ukPlate(v.registration)}<div class="ticket-vehicle">${esc(v.make)} ${esc(v.model)}</div><strong class="ticket-title">${esc(job.title)}</strong><div class="ticket-customer">${esc(c.name)}</div><div class="ticket-assignment"><span class="ticket-avatar">${esc(initials(job.technician))}</span><span><small>ASSIGNED TO</small><b>${esc(job.technician || 'Unassigned')}</b></span><span class="ticket-open">${icon('arrow')}</span></div></button>`;
+function dashboardJobCard(job, current = false) {
+  const v = vehicle(job.vehicleId);
+  const status = current ? 'Working now' : { booked: 'Booked', 'in-progress': 'In progress', ready: 'Ready', invoiced: 'Invoiced' }[job.status] || label(job.status);
+  return `<button class="dashboard-job mechanic-job${current ? ' current-job' : ''}" data-job="${job.id}" aria-label="Open job ${job.number}, ${esc(v.registration)}, ${esc(job.title)}, ${esc(status)}"><div class="compact-job-top">${ukPlate(v.registration, true)}<time>${esc(job.time)}<span> · ${job.duration} min</span></time></div><strong class="ticket-title">${esc(job.title)}</strong><div class="compact-job-bottom"><span class="compact-job-status ${job.status}">${current ? '<i></i>' : ''}${esc(status)}</span><span class="compact-job-reference">#${job.number}${job.date < state.today ? ` · ${fmtDate(job.date)}` : ''}</span></div></button>`;
 }
 
 document.addEventListener('click', event => {
-  const target = event.target.closest('[data-dash-page],[data-dash-view],[data-dash-stage],[data-dash-stat],[data-dash-tech]');
+  const target = event.target.closest('[data-mechanic],[data-mechanic-page]');
   if (!target) return;
-  if (target.dataset.dashPage) dashboardPage += Number(target.dataset.dashPage);
-  if (target.dataset.dashView) dashboardView = target.dataset.dashView;
-  if (target.dataset.dashStage) { dashboardStage = target.dataset.dashStage; dashboardPage = 0; }
-  if (target.dataset.dashStat) {
-    if (window.innerWidth > 900) {
-      const key = target.dataset.dashStat;
-      const jobs = dashboardJobs().filter(j => key === 'booked' && j.status === 'booked' || key === 'technicians' || key === 'working' && j.status === 'in-progress' || key === 'collection' && ['ready', 'invoiced'].includes(j.status));
-      const title = { booked: "Booked jobs", working: 'Jobs in the workshop', collection: 'Ready & invoiced jobs', technicians: 'Technician assignments' }[key];
-      modal(title, 'WORKSHOP JOBS', `<div class="tech-job-detail">${jobs.map(dashboardJobCard).join('') || '<div class="empty">No jobs in this group.</div>'}</div>`);
-      return;
-    }
-    if (target.dataset.dashStat === 'technicians') dashboardView = 'technicians';
-    else { dashboardView = 'jobs'; dashboardStage = target.dataset.dashStat; dashboardPage = 0; }
-  }
-  if (target.dataset.dashTech) {
-    const name = target.dataset.dashTech;
-    const jobs = dashboardJobs().filter(j => j.technician === name);
-    modal(`${name}'s assigned jobs`, 'TECHNICIAN WORKLOAD', `<div class="tech-job-detail">${jobs.map(dashboardJobCard).join('') || '<div class="empty">No active jobs assigned.</div>'}</div>`);
-    return;
+  if (target.dataset.mechanic !== undefined) dashboardMechanic = target.dataset.mechanic;
+  if (target.dataset.mechanicPage !== undefined) {
+    const jobs = dashboardJobs();
+    const names = [...new Set([...state.settings.technicians, ...jobs.map(j => j.technician || 'Unassigned')])];
+    const name = names[Number(target.dataset.mechanicPage)];
+    mechanicPages[name] = (mechanicPages[name] || 0) + Number(target.dataset.step);
   }
   render();
 });

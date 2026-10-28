@@ -329,4 +329,43 @@ body{font-size:15px}
 @media(max-width:800px){.workspace .content{padding:22px 18px}.workspace h1{font-size:25px}.workspace .page-heading{align-items:flex-start}.workspace .metric{padding:10px 14px}.workspace .metric:nth-child(3){border-left:0}.workspace .metric:first-child{padding-left:14px}.workspace .metrics{gap:12px 0}.workspace .connection-grid{grid-template-columns:1fr}.workspace .connection:nth-child(n){padding:22px 0;border-bottom:1px solid #d8dedf}.workspace .connection:last-child{border-bottom:0}.workspace .customer-card{grid-template-columns:40px 1fr auto}.workspace .customer-card p{grid-column:2/-1}.workspace .customer-card footer{grid-column:2/-1}.dashboard-screen .workspace .content{padding:0 18px 8px}}
 @media(max-width:520px){.workspace .content{padding:20px 12px}.workspace h1{font-size:24px}.workspace .tab{padding:11px 12px;font-size:12px}.workspace .metric-value{font-size:25px}.workspace .metric-head{font-size:12px}.workspace .metric-foot{font-size:10px}.workspace .customer-grid{padding:0 12px}.workspace .customer-card{gap:10px;grid-template-columns:34px 1fr}.workspace .customer-card .avatar{width:32px;height:32px}.workspace .customer-card .badge{grid-column:2}.workspace .customer-card p,.workspace .customer-card footer{grid-column:2}.workspace .panel-body,.workspace .settings-form .panel-body{padding:16px}.workspace .connection-grid{padding:0 16px}.dashboard-screen .workspace .content{padding:0 12px 7px}}
 @media print{#modal .modal-head,#modal .modal-body,#modal .document{background:#fff}#modal .document{padding:0}}
+/* Mechanic-owned daily work board. */
+.workspace .mechanic-dashboard{gap:0}
+.mechanic-heading{padding:22px 0 20px;flex-shrink:0}
+.workspace .mechanic-heading h1{font-size:27px;margin-bottom:17px}
+.mechanic-actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.mechanic-actions .dash-date{color:#58656c;font-size:13px}
+.mechanic-total{font-size:12px;color:#68757b;margin-left:auto}
+.mechanic-columns{display:grid;grid-template-columns:repeat(var(--mechanic-count),minmax(0,1fr));gap:12px;flex:1;min-height:0}
+.mechanic-column{display:flex;flex-direction:column;min-width:0;min-height:0;background:#eceeef;padding:0 12px}
+.mechanic-column-heading{display:flex;align-items:center;gap:10px;height:73px;flex-shrink:0}
+.workspace .mechanic-column-heading h2{font-size:17px;margin:0 0 5px}
+.mechanic-column-heading>div>span{font-size:12px;color:#657178}
+.mechanic-column-heading .tech-avatar{width:35px;height:35px;border-radius:50%;background:#f9faf7;color:#566b4c;font-size:13px}
+.mechanic-working{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:11px;color:#55723e}
+.mechanic-working i,.compact-job-status i{width:6px;height:6px;border-radius:50%;background:#6f9e3d;display:inline-block}
+.mechanic-job-list{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+.workspace .mechanic-dashboard .mechanic-job{flex:0 0 auto;max-height:none;min-height:108px;padding:12px 14px;border:0;border-radius:3px;box-shadow:0 1px 3px #1c252218;background:#fff}
+.workspace .mechanic-dashboard .mechanic-job.current-job{background:#f5f9ef;box-shadow:inset 3px 0 #7ca63c,0 1px 3px #1c252218}
+.compact-job-top{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
+.compact-job-top time{color:#626e74;font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.compact-job-top time span{font-size:11px}
+.workspace .mechanic-job .uk-plate-small{height:29px}
+.workspace .mechanic-job .uk-plate-small .plate-letters{font-size:21px}
+.workspace .mechanic-job .ticket-title{margin-top:9px;font-size:15px;line-height:1.3;-webkit-line-clamp:1}
+.compact-job-bottom{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:9px;width:100%;font-size:11px}
+.compact-job-status{display:flex;align-items:center;gap:5px;color:#5c6a72}
+.compact-job-status.in-progress{color:#53753a;font-weight:600}
+.compact-job-status.ready{color:#587c39}
+.compact-job-reference{color:#758088;font-variant-numeric:tabular-nums}
+.mechanic-column-footer{display:flex;justify-content:center;align-items:center;gap:12px;height:36px;flex-shrink:0;font-size:10px;color:#6e7a80}
+.mechanic-column-footer .icon-btn{height:24px;width:26px;background:transparent;border:0;font-size:20px}
+.mechanic-column-footer .icon-btn:disabled{cursor:default;opacity:.25}
+.mechanic-dashboard>.board-footer{gap:18px;justify-content:flex-start;flex-shrink:0}
+.mechanic-dashboard>.board-footer>a:first-of-type{margin-left:auto}
+.mechanic-switch{display:none}
+@media(max-width:1100px){.mechanic-working{font-size:0;gap:0}.compact-job-top time span{display:none}.workspace .mechanic-dashboard .mechanic-job{padding:12px}.mechanic-column{padding:0 9px}.mechanic-columns{gap:9px}}
+@media(max-width:800px){.mechanic-heading{padding:18px 0}.mechanic-total{font-size:11px}.mechanic-column-heading{height:67px}.workspace .mechanic-column-heading h2{font-size:16px}.mechanic-column-heading>div>span{font-size:11px}}
+@media(max-width:600px){.workspace .mechanic-heading h1{font-size:24px;margin-bottom:13px}.mechanic-heading{padding:15px 0}.mechanic-actions{gap:12px}.mechanic-actions .dash-date{font-size:12px}.mechanic-total{display:none}.mechanic-switch{display:flex;background:#eceeef;margin-bottom:10px;flex-shrink:0}.mechanic-switch button{flex:1;border:0;border-bottom:2px solid transparent;background:transparent;padding:11px 5px;color:#54636b;font-size:13px}.mechanic-switch button.selected{border-bottom-color:#7ba930;background:#e1e6de;color:#345126}.mechanic-switch button span{margin-left:7px;font-size:11px}.mechanic-columns{display:flex}.mechanic-column{display:none;width:100%;padding:0 12px}.mechanic-column.is-selected{display:flex}.mechanic-column-heading{height:64px}.mechanic-working{font-size:11px;gap:6px}.compact-job-top time span{display:inline}.workspace .mechanic-dashboard .mechanic-job{padding:12px 14px}.mechanic-dashboard>.board-footer{font-size:10px}.mechanic-dashboard>.board-footer>span{display:none}}
+@media(max-height:650px) and (min-width:601px){.mechanic-heading{padding:12px 0}.workspace .mechanic-heading h1{font-size:24px;margin-bottom:10px}.mechanic-column-heading{height:58px}.mechanic-column-footer{height:30px}.mechanic-column-heading>div>span{font-size:11px}}
 
